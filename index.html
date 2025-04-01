@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancer Prediction</title>
+    <style>
+        body {
+            background: url('https://www.bme.jhu.edu/wp-content/uploads/2019/07/banner-directory-1920x1080.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+            padding-top: 50px;
+        }
+        .container {
+            width: 40%;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #ff6600;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #ff4500;
+        }
+        .output-box {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Cancer Prediction Model</h2>
+        <form id="predictForm">
+            <input type="number" id="perimeter_mean" placeholder="Perimeter Mean" required step="0.00001">
+            <input type="number" id="concave_points_mean" placeholder="Concave Points Mean" required step="0.00001">
+            <input type="number" id="radius_worst" placeholder="Radius Worst" required step="0.00001">
+            <input type="number" id="perimeter_worst" placeholder="Perimeter Worst" required step="0.00001">
+            <input type="number" id="concave_points_worst" placeholder="Concave Points Worst" required step="0.00001">
+            <br>
+            <button type="submit">Predict</button>
+        </form>
+
+        <div class="output-box">
+            <p><strong>Prediction:</strong> <span id="output1"></span></p>
+            <p><strong>Probability:</strong> <span id="output2"></span></p>
+        </div>
+    </div>
+	<script>
+    document.getElementById("predictForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let perimeter_mean = parseFloat(document.getElementById("perimeter_mean").value);
+        let concave_points_mean = parseFloat(document.getElementById("concave_points_mean").value);
+        let radius_worst = parseFloat(document.getElementById("radius_worst").value);
+        let perimeter_worst = parseFloat(document.getElementById("perimeter_worst").value);
+        let concave_points_worst = parseFloat(document.getElementById("concave_points_worst").value);
+
+        if (isNaN(perimeter_mean) || isNaN(concave_points_mean) || isNaN(radius_worst) || isNaN(perimeter_worst) || isNaN(concave_points_worst)) {
+            alert("Please enter valid numerical values.");
+            return;
+        }
+
+        let inputData = {
+            perimeter_mean: perimeter_mean,
+            concave_points_mean: concave_points_mean,
+            radius_worst: radius_worst,
+            perimeter_worst: perimeter_worst,
+            concave_points_worst: concave_points_worst
+        };
+
+        fetch("/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(inputData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("output1").innerText = data.prediction;
+            document.getElementById("output2").innerText = data.probability;
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while fetching the prediction.");
+        });
+    });
+</script>
+
+</body>
+</html>
